@@ -1,0 +1,86 @@
+@import '@fontsource-variable/geist';
+@import '@fontsource-variable/geist-mono';
+@import 'tailwindcss';
+
+/*
+ * Design system mínimo — inspirado na linguagem do Endless Tools:
+ * branco dominante, preto profundo, cinza neutro, e as cores da Capri
+ * usadas apenas como acento pontual.
+ */
+@theme {
+  --color-paper: #fafaf8;
+  --color-paper-2: #f2f2ef;
+  --color-ink: #111114;
+  --color-mute: #85858d;
+  --color-line: #e7e7e3;
+
+  /* Acentos amostrados dos frames originais da Capri */
+  --color-capri-pink: #ee2a5c;
+  --color-capri-green: #3cee7c;
+  --color-capri-blue: #2a6ed8;
+
+  --font-sans: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'Geist Mono Variable', ui-monospace, monospace;
+
+  --ease-capri: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+    user-select: none;
+  }
+
+  button {
+    cursor: default;
+  }
+}
+
+/* Rolagem sem barra visível — o conteúdo respira, a janela não ganha moldura. */
+.scroll-quiet {
+  scrollbar-width: none;
+}
+.scroll-quiet::-webkit-scrollbar {
+  display: none;
+}
+
+/* Região arrastável da janela (macOS hiddenInset). Controles devem usar .no-drag. */
+.drag {
+  -webkit-app-region: drag;
+}
+.no-drag {
+  -webkit-app-region: no-drag;
+}
+
+/* Respiração quase imperceptível aplicada à imagem, nunca ao recorte. */
+@keyframes capri-breathe {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(0, -0.35%, 0) scale(1.006);
+  }
+}
+
+.capri-breathe {
+  animation: capri-breathe 5.6s var(--ease-capri) infinite;
+  transform-origin: 50% 60%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .capri-breathe {
+    animation: none;
+  }
+}
