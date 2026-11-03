@@ -24,6 +24,19 @@ const FRAMING: Record<Framing, { halfW: number; halfH: number; biasY: number }> 
   eyes: { halfW: 1.12, halfH: 0.42, biasY: 0 },
 }
 
+/** Ponto médio entre os olhos, distância (d) e inclinação da linha dos olhos, em px da imagem. */
+export function eyeSpace(pose: Pose) {
+  const { width: W, height: H, eyes } = pose
+  const dx = (eyes.right.x - eyes.left.x) * W
+  const dy = (eyes.right.y - eyes.left.y) * H
+  return {
+    midX: ((eyes.left.x + eyes.right.x) / 2) * W,
+    midY: ((eyes.left.y + eyes.right.y) / 2) * H,
+    d: Math.hypot(dx, dy),
+    angle: (Math.atan2(dy, dx) * 180) / Math.PI,
+  }
+}
+
 const clamp = (v: number, min: number, max: number) => Math.min(Math.max(v, min), max)
 
 /**

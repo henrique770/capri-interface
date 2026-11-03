@@ -23,6 +23,7 @@ Outros: `npm run build` (gera `out/`), `npm start` (roda o build), `npm run type
 | `T` | histórico de tópicos |
 | `Esc` | voltar à visualização principal |
 | `D` | tema: sistema → claro → escuro |
+| `F` | fala de demonstração com a voz do sistema (pt-BR), com a Capri ativa; F de novo interrompe |
 
 O tema segue o sistema por padrão; a escolha manual fica salva no `localStorage`
 (`capri.theme`). Os tokens de cor ficam em `src/styles/global.css` — o escuro só
@@ -51,6 +52,15 @@ acompanha via `nativeTheme` (ponte `window.capri.setTheme`).
 - **Estado ligado** (pose `eyesPop`, S02E04 · 255): ao ativar, o quadro passa de retrato para
   16:9 enquanto a cortina revela o clipe; os olhos sobem para dentro do quadro com o quique
   original. Depois dessa entrada, corta para o loop (65) — no quadro grande e na lateral.
+- **Boca e fala** (`src/features/speech/`, `MouthLayer.tsx`): ligada, o quadro se estende
+  abaixo do clipe na cor do rosto (`#050215`, amostrada do 65), onde fica a boca — a ~0,6 d
+  abaixo dos olhos, como no original. São 5 desenhos originais recortados com alfa
+  (`scripts/mouth/`): a linha fechada e 4 aberturas do `evil-capri.mp4`. A forma é escolhida
+  pelo nível de voz (0–1), trocada no máximo a 12 qps, sem interpolar — como animação 2D.
+  A demo (F) fala com a voz do sistema (Web Speech API, Luciana se houver) e move a boca por
+  um envelope de sílabas a cada palavra; falar durante a entrada a encerra na hora.
+  A boca surge quando a entrada dos olhos (255) termina, num glitch curto (`GlitchBurst.tsx`:
+  rasgos + separação RGB real por canal, 0,42 s) que também disfarça o corte para o loop (65).
 - **Respiração**: oscilação mínima (0,6 %) na imagem, não no recorte.
 - **Sequências de frames** (`sequences.ts`, `useFrameSequence.ts`): solte PNGs em
   `src/assets/capri/sequences/<nome>/` e a pose correspondente passa a tocá-los
@@ -66,9 +76,12 @@ src/components/content Homelab demonstrativo, histórico de tópicos
 src/components/ui    primitivas (barra superior, status, toggle)
 src/features/activation  máquina de estados pura + store + fontes de intenção
 src/features/animation   poses, câmera, layout, tempos, transições
+src/features/speech      boca: formas, nível de voz, demo (F), ponte de áudio do TTS
+src/features/theme       tema claro/escuro
 src/features/topics      tópicos demonstrativos
 src/hooks            viewport, métricas fictícias, fontes de intenção
 assets/capri/        originais, tratados e documentação de origem
+scripts/mouth/       recorte dos desenhos da boca a partir dos frames originais
 ```
 
 ## Voz no futuro
@@ -77,3 +90,8 @@ Entradas são `IntentSource`s (`src/features/activation/sources/`). O teclado é
 Uma fonte de wake word "Capri" só precisa chamar `emit({ type: 'activate' })`; adicione-a em
 `SOURCES` no `App.tsx`. A animação não muda. Estados de fala (ouvindo/falando) entram como
 novas fases em `model.ts`, com novas poses/sequências.
+
+**Text-to-speech → boca.** Quando o agente tocar o áudio da fala num `<audio>`, ligue-o com
+`attachSpeechAudio(audio)` (`src/features/speech/audio.ts`): a energia da voz vira o nível
+0–1 e a boca acompanha; `play`/`ended` marcam o estado "Falando". Outra fonte pode chamar
+`setSpeaking()` + `setSpeechLevel()` direto (ex.: visemas vindos do serviço de TTS).

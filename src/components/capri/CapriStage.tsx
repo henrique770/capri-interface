@@ -6,7 +6,12 @@ import { stageLayout } from '@/features/animation/layout'
 import { POSES } from '@/features/animation/poses'
 import { LAYOUT_TRANSITION } from '@/features/animation/timing'
 import { useActivationTransition } from '@/features/animation/useActivationTransition'
+import { stopDemoSpeech } from '@/features/speech/demo'
+import { FACE_COLOR } from '@/features/speech/mouth'
+import { useSpeaking } from '@/features/speech/store'
 import { useViewportSize } from '@/hooks/useViewportSize'
+import { GlitchBurst } from './GlitchBurst'
+import { MouthLayer } from './MouthLayer'
 import { PoseLayer } from './PoseLayer'
 import { TransitionOverlay } from './TransitionOverlay'
 
@@ -16,7 +21,8 @@ const INSTANT: Transition = { duration: 0 }
  * A Capri: frames originais empilhados dentro de um quadro arredondado.
  * - desligada: still com a região branca (quadro retrato);
  * - ligada: S02E04 (255) — os olhos sobem para dentro do quadro (quadro 16:9);
- * - após a entrada: corta para o loop do close dos olhos (65), no quadro grande e na lateral.
+ * - após a entrada: corta para o loop do close dos olhos (65), no quadro grande e na lateral;
+ * - ligada, o quadro se estende abaixo do clipe na cor do rosto, onde fica a boca.
  * A troca acontece por baixo de um clipe de transição em tela cheia com glitch.
  */
 export function CapriStage() {
@@ -26,7 +32,8 @@ export function CapriStage() {
   const motionState = useActivationTransition(phase)
   const on = isOn(phase)
   const docked = view === 'homelab'
-  const { frame, radius, framing } = stageLayout(view, vp, on)
+  const { frame, radius, framing, imageH } = stageLayout(view, vp, on)
+  const imageFrame = { ...frame, h: imageH }
 
   // Mudança de modo ou de estado anima o quadro; redimensionar acompanha instantaneamente.
   const layoutKey = `${view}:${on}`
@@ -47,9 +54,27 @@ export function CapriStage() {
   // tanto na tela inicial quanto na lateral — a Capri ligada nunca fica estática.
   const [entered, setEntered] = useState(false)
   useEffect(() => {
-    if (!on) setEntered(false)
+    if (!on) {
+      setEntered(false)
+      setBurst(null)
+    }
   }, [on])
+  // Desligar corta a fala na hora.
+  useEffect(() => {
+    if (phase !== 'active') stopDemoSpeech()
+  }, [phase])
   const showLoop = entered
+  // Fim da entrada dos olhos → um glitch curto, e a boca surge no meio dele.
+  const [burst, setBurst] = useState<number | null>(null)
+  const finishEntrance = () => {
+    setEntered(true)
+    setBurst(performance.now())
+  }
+  // Se ela começar a falar durante a entrada, a entrada termina ali: a boca precisa aparecer.
+  const speaking = useSpeaking()
+  useEffect(() => {
+    if (speaking && phase === 'active' && !entered) finishEntrance()
+  }, [speaking, phase, entered])
   // O still desligado sai de cena quando a camada ligada cobre o quadro — nada vaza pelas bordas.
   const inactiveOpacity = useTransform(motionState.reveal, (v) => 1 - v)
 
@@ -82,28 +107,45 @@ export function CapriStage() {
             live={phase === 'inactive'}
           />
         </motion.div>
-        {/* Camada "ligada": trocada enquanto o clipe de transição cobre a janela. */}
-        <motion.div className="absolute inset-0" style={{ opacity: motionState.reveal }}>
-          <PoseLayer
-            pose={POSES.eyesPop}
-            frame={frame}
-            framing={framing}
+        {/* Camada "ligada": trocada enquanto o clipe de transição cobre a janela.
+            O fundo na cor do rosto continua o clipe para baixo, até a boca. */}
+        <motion.div className="absolute inset-0" style={{ opacity: motionState.reveal, backgroundColor: FACE_COLOR }}>
+          <motion.div
+            className="absolute inset-x-0 top-0 overflow-hidden"
+            initial={false}
+            animate={{ height: imageFrame.h }}
             transition={transition}
-            accent={motionState.activeAccent}
-            live={phase === 'active' && !entered}
-            visible={!showLoop}
-            fade={cut}
-            onSequenceEnd={() => setEntered(true)}
-          />
-          <PoseLayer
+          >
+            <PoseLayer
+              pose={POSES.eyesPop}
+              frame={imageFrame}
+              framing={framing}
+              transition={transition}
+              accent={motionState.activeAccent}
+              live={phase === 'active' && !entered}
+              visible={!showLoop}
+              fade={cut}
+              onSequenceEnd={finishEntrance}
+            />
+            <PoseLayer
+              pose={POSES.eyes}
+              frame={imageFrame}
+              framing={framing}
+              transition={transition}
+              accent={motionState.activeAccent}
+              live={phase === 'active' && showLoop}
+              visible={showLoop}
+              fade={cut}
+            />
+            <GlitchBurst burst={burst} pose={POSES.eyes} imageFrame={imageFrame} framing={framing} />
+          </motion.div>
+          <MouthLayer
             pose={POSES.eyes}
-            frame={frame}
+            imageFrame={imageFrame}
             framing={framing}
             transition={transition}
-            accent={motionState.activeAccent}
-            live={phase === 'active' && showLoop}
-            visible={showLoop}
-            fade={cut}
+            visible={phase === 'active' && showLoop}
+            glitchIn={burst}
           />
         </motion.div>
       </motion.div>

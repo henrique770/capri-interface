@@ -7,9 +7,22 @@ export interface StageLayout {
   /** Raios: superior-esquerdo, superior-direito, inferior-direito, inferior-esquerdo. */
   radius: [number, number, number, number]
   framing: Framing
+  /**
+   * Altura da área da imagem, a partir do topo do quadro. Com a Capri ligada,
+   * abaixo dela fica a faixa do rosto onde a boca é desenhada.
+   */
+  imageH: number
 }
 
 export const HEADER_HEIGHT = 56
+
+/**
+ * Ligada, o quadro ganha uma faixa abaixo do clipe 16:9 para a boca: no
+ * original ela fica ~0,6 d abaixo dos olhos, logo abaixo do painel verde —
+ * fora do recorte do close. 720 → 900 px no espaço do clipe (1280 de largura).
+ */
+const ON_ASPECT = 1280 / 900
+const IMAGE_ASPECT = 16 / 9
 const clamp = (v: number, min: number, max: number) => Math.min(Math.max(v, min), max)
 
 export const gutter = (vp: Size) => clamp(vp.width * 0.035, 16, 44)
@@ -33,21 +46,28 @@ export function stageLayout(view: View, vp: Size, on: boolean): StageLayout {
   if (view === 'homelab') {
     // A Capri recolhe para a direita: só os olhos, num cartão com a mesma margem do conteúdo.
     const w = dockWidth(vp)
-    const h = Math.round(w * 0.5625)
+    const imageH = Math.round(w / IMAGE_ASPECT)
+    const h = on ? Math.round(w / ON_ASPECT) : imageH
     return {
       frame: { x: vp.width - w - pad, y: HEADER_HEIGHT + (vp.height - HEADER_HEIGHT) * 0.08, w, h },
       radius: [22, 22, 22, 22],
       framing: 'eyes',
+      imageH,
     }
   }
 
   const maxH = isNarrow(vp) ? vp.height - HEADER_HEIGHT - 250 : vp.height - HEADER_HEIGHT - pad
-  const maxW = isNarrow(vp) ? vp.width - pad * 2 : vp.width * (on ? 0.66 : 0.62)
+  // Nunca invade a coluna de texto à direita (CharacterAside: min(34vw, 380px) + 44px).
+  const asideW = Math.min(vp.width * 0.34, 380) + 44
+  const maxW = isNarrow(vp)
+    ? vp.width - pad * 2
+    : Math.min(vp.width * (on ? 0.66 : 0.62), vp.width - pad - asideW - 24)
 
-  // Ligada: o quadro assume o 16:9 do clipe, para os dois olhos caberem inteiros.
-  // Desligada: retrato, no formato do still. Composição assimétrica, ancorada no topo.
-  const aspect = on ? 16 / 9 : isNarrow(vp) ? 1.1 : 1.18
+  // Ligada: o clipe 16:9 inteiro + a faixa da boca. Desligada: retrato, no formato
+  // do still. Composição assimétrica, ancorada no topo.
+  const aspect = on ? ON_ASPECT : isNarrow(vp) ? 1.1 : 1.18
   const w = Math.min(maxW, maxH * aspect)
   const h = Math.max(200, w / aspect)
-  return { frame: { x: pad, y: HEADER_HEIGHT, w, h }, radius: [28, 28, 28, 28], framing: 'portrait' }
+  const imageH = on ? w / IMAGE_ASPECT : h
+  return { frame: { x: pad, y: HEADER_HEIGHT, w, h }, radius: [28, 28, 28, 28], framing: 'portrait', imageH }
 }

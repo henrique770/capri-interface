@@ -7,7 +7,8 @@ detentores originais (CD PROJEKT RED / Studio Trigger). Uso aqui: protótipo pes
 |---|---|---|
 | `source/capri-inactive-original.png` (868×692) | Captura enviada pelo usuário (frame do anime, repostado por terceiros com a marca d'água `@drsxlinx`) | nenhum (original preservado) |
 | `source/capri-active-original.png` (686×676) | Captura enviada pelo usuário | nenhum (original preservado) |
-| `capri-inactive.png` (868×686) | derivado do original desativado | **1)** marca d'água coberta com um retalho de textura de cabelo da mesma imagem (região x0–146, y100–134 copiada sobre y193–227); **2)** 6 px do topo cortados (faixa preta de captura). Proporções e desenho intocados. |
+| `capri-inactive-868.png` (868×686) | derivado do original desativado | **1)** marca d'água coberta com um retalho de textura de cabelo da mesma imagem (região x0–154, y96–140 copiada sobre y188–232, bordas em degradê de 8–10 px para não deixar emenda); **2)** 6 px do topo cortados (faixa preta de captura). Proporções e desenho intocados. |
+| `capri-inactive.png` (1736×1372) | derivado de `capri-inactive-868.png` | limpeza e ampliação 2× com filtros clássicos, sem IA (nlmeans → lanczos → bilateral → cas) — `scripts/inactive/enhance.sh`. Desenho e proporções intocados. |
 | `capri-active.png` (686×676) | cópia do original ativado | nenhum — **não usado no app desde que o estado ligado passou a ser o clipe 255** (mantido como referência) |
 
 | `source/video/S02E04-65.mp4` (1920×1080, 21,3 s, 23,976 fps) | Clipe "Cyberpunk Edgerunners - S02E04 (65)" de animeclips.online (`/cyberpunk-edgerunners-2/`), baixado pelo usuário. O site oferece os clipes para download gratuito voltado a edições (AMV). | nenhum (original preservado) |
@@ -15,6 +16,9 @@ detentores originais (CD PROJEKT RED / Studio Trigger). Uso aqui: protótipo pes
 
 | `source/video/S02E04-{162,164,255,274,275,277}.mp4` | Clipes do mesmo episódio em animeclips.online, baixados pelo usuário | nenhum |
 | `src/assets/capri/sequences/eyes-pop-s02e04/01–04.jpg` (1280×720) | Os 4 desenhos únicos do clipe 255 (0 s · 1,00 s · 1,13 s · 1,25 s) — olhos de frente subindo no quadro | extraídos um a um, 1280 px lanczos, JPEG q3 |
+
+| `source/video/evil-capri.mp4` (1920×1080, 3,5 s, 23,976 fps) | Arquivo local enviado pelo usuário (Downloads); origem de publicação não informada — confirmar antes de distribuir | nenhum (original preservado) |
+| `source/mouth-closed-reference.png` (2000×1511) | Captura enviada pelo usuário (boca fechada em linha) | nenhum |
 
 ### Catálogo dos clipes S02E04
 
@@ -42,6 +46,21 @@ Também fora: o Shorts `5QPRS4oocgg` (edição de fã com efeitos), descartado a
 Duração de cada desenho em `src/features/animation/poses.ts` (`EYES_DURATIONS`).
 
 Os arquivos usados pelo app ficam em `src/assets/capri/` (cópias idênticas dos tratados acima).
+
+### Boca (`src/assets/capri/mouth/`)
+
+| Arquivo | Origem | Tratamento |
+|---|---|---|
+| `closed.png` (1200 px) | `source/mouth-closed-reference.png` (captura enviada pelo usuário) | linha branca recortada em 4× de resolução (alfa por brancura + baixa saturação), girada +22,7° para nivelar com a linha dos olhos e reduzida com filtro de área — `scripts/mouth/build_closed.py` |
+| `small.png` | `source/video/evil-capri.mp4`, frame 60 | preenchimento branco recortado com alfa |
+| `mid.png` | idem, frame 66 | idem |
+| `open.png` | idem, frame 72 | idem |
+| `wide.png` | idem, frame 84 | idem |
+
+Recorte: alfa = menor canal RGB (branco alto; rosto azul-marinho, verde, vermelho e roxo
+baixos), só o maior componente conectado, cor única `#F4F2F7`. Nenhum traço foi redesenhado.
+Posição e tamanho medidos em unidades da distância entre os olhos (pupilas medidas em cada
+frame) — veja `src/features/speech/mouth.ts`. Reprodução: `scripts/mouth/build_mouth.py`.
 
 ## Medições (coordenadas normalizadas, usadas em `src/features/animation/poses.ts`)
 

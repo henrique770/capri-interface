@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from 'motion/react'
 import { isOn, type ActivationPhase } from '@/features/activation/model'
 import { EASE_OUT } from '@/features/animation/timing'
+import { useSpeaking } from '@/features/speech/store'
 import { ActivationToggle } from '@/components/ui/ActivationToggle'
 import { Kbd } from '@/components/ui/Kbd'
 
@@ -13,6 +14,8 @@ interface CharacterAsideProps {
 /** Texto mínimo ao lado da Capri no modo personagem. Quase vazio, de propósito. */
 export function CharacterAside({ phase, narrow, onToggle }: CharacterAsideProps) {
   const on = isOn(phase)
+  const speaking = useSpeaking() && phase === 'active'
+  const line = speaking ? 'Falando.' : on ? 'Ouvindo. Pronta quando você estiver.' : 'Em repouso.'
   return (
     <motion.aside
       initial={{ opacity: 0, y: 12 }}
@@ -29,13 +32,13 @@ export function CharacterAside({ phase, narrow, onToggle }: CharacterAsideProps)
         <div className="mt-4 h-5 overflow-hidden text-[14px] text-mute">
           <AnimatePresence mode="wait" initial={false}>
             <motion.p
-              key={on ? 'on' : 'off'}
+              key={line}
               initial={{ y: 14, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: -14, opacity: 0 }}
               transition={{ duration: 0.35, ease: EASE_OUT }}
             >
-              {on ? 'Ouvindo. Pronta quando você estiver.' : 'Em repouso.'}
+              {line}
             </motion.p>
           </AnimatePresence>
         </div>
@@ -54,6 +57,11 @@ export function CharacterAside({ phase, narrow, onToggle }: CharacterAsideProps)
             <div className="flex items-center gap-1.5">
               <Kbd>D</Kbd> tema
             </div>
+            {phase === 'active' && (
+              <div className="flex items-center gap-1.5">
+                <Kbd>F</Kbd> falar
+              </div>
+            )}
           </dl>
         )}
       </div>
