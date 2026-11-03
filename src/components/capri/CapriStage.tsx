@@ -8,6 +8,7 @@ import { LAYOUT_TRANSITION } from '@/features/animation/timing'
 import { useActivationTransition } from '@/features/animation/useActivationTransition'
 import { useViewportSize } from '@/hooks/useViewportSize'
 import { PoseLayer } from './PoseLayer'
+import { TransitionOverlay } from './TransitionOverlay'
 
 const INSTANT: Transition = { duration: 0 }
 
@@ -16,7 +17,7 @@ const INSTANT: Transition = { duration: 0 }
  * - desligada: still com a região branca (quadro retrato);
  * - ligada: S02E04 (255) — os olhos sobem para dentro do quadro (quadro 16:9);
  * - na lateral: após a entrada, corta para o loop do close dos olhos (65).
- * A ativação é uma cortina entre as camadas enquanto o quadro muda de forma.
+ * A troca acontece por baixo de um clipe de transição em tela cheia com glitch.
  */
 export function CapriStage() {
   const vp = useViewportSize()
@@ -50,59 +51,63 @@ export function CapriStage() {
   const showLoop = docked && entered
 
   return (
-    <motion.div
-      aria-label={on ? 'Capri ativada' : 'Capri desativada'}
-      role="img"
-      className="absolute overflow-hidden bg-ink"
-      initial={false}
-      animate={{
-        left: frame.x,
-        top: frame.y,
-        width: frame.w,
-        height: frame.h,
-        borderTopLeftRadius: radius[0],
-        borderTopRightRadius: radius[1],
-        borderBottomRightRadius: radius[2],
-        borderBottomLeftRadius: radius[3],
-      }}
-      transition={transition}
-    >
-      <PoseLayer
-        pose={POSES.inactive}
-        frame={frame}
-        framing={framing}
-        transition={transition}
-        accent={motionState.inactiveAccent}
-        live={phase === 'inactive'}
-      />
-      {/* Camada "ligada": revelada pela cortina da ativação. */}
-      <motion.div className="absolute inset-0" style={{ clipPath: motionState.activeClip }}>
-        <PoseLayer
-          pose={POSES.eyesPop}
-          frame={frame}
-          framing={framing}
-          transition={transition}
-          accent={motionState.activeAccent}
-          live={on && !entered}
-          visible={!showLoop}
-          fade={cut}
-          onSequenceEnd={() => setEntered(true)}
-        />
-        <PoseLayer
-          pose={POSES.eyes}
-          frame={frame}
-          framing={framing}
-          transition={transition}
-          accent={motionState.activeAccent}
-          live={phase === 'active' && showLoop}
-          visible={showLoop}
-          fade={cut}
-        />
-      </motion.div>
+    <>
       <motion.div
-        className={`pointer-events-none absolute inset-0 ${phase === 'deactivating' ? 'bg-paper' : 'bg-capri-green'}`}
-        style={{ clipPath: motionState.edgeClip, opacity: motionState.edgeOpacity }}
+        aria-label={on ? 'Capri ativada' : 'Capri desativada'}
+        role="img"
+        className="absolute overflow-hidden bg-ink"
+        initial={false}
+        animate={{
+          left: frame.x,
+          top: frame.y,
+          width: frame.w,
+          height: frame.h,
+          borderTopLeftRadius: radius[0],
+          borderTopRightRadius: radius[1],
+          borderBottomRightRadius: radius[2],
+          borderBottomLeftRadius: radius[3],
+        }}
+        transition={transition}
+      >
+        <PoseLayer
+          pose={POSES.inactive}
+          frame={frame}
+          framing={framing}
+          transition={transition}
+          accent={motionState.inactiveAccent}
+          live={phase === 'inactive'}
+        />
+        {/* Camada "ligada": trocada enquanto o clipe de transição cobre a janela. */}
+        <motion.div className="absolute inset-0" style={{ opacity: motionState.reveal }}>
+          <PoseLayer
+            pose={POSES.eyesPop}
+            frame={frame}
+            framing={framing}
+            transition={transition}
+            accent={motionState.activeAccent}
+            live={phase === 'active' && !entered}
+            visible={!showLoop}
+            fade={cut}
+            onSequenceEnd={() => setEntered(true)}
+          />
+          <PoseLayer
+            pose={POSES.eyes}
+            frame={frame}
+            framing={framing}
+            transition={transition}
+            accent={motionState.activeAccent}
+            live={phase === 'active' && showLoop}
+            visible={showLoop}
+            fade={cut}
+          />
+        </motion.div>
+      </motion.div>
+      <TransitionOverlay
+        run={motionState.run}
+        onCovered={motionState.onCovered}
+        onReveal={motionState.onReveal}
+        onDone={motionState.onDone}
       />
-    </motion.div>
+    </>
   )
 }

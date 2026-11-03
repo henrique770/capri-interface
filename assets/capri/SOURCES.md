@@ -24,7 +24,7 @@ detentores originais (CD PROJEKT RED / Studio Trigger). Uso aqui: protótipo pes
 | 255 | Olhos de frente subindo no quadro com quique (4 desenhos) | **estado ligado** (tela inicial e entrada da lateral) |
 | 162 | Capri gira para a câmera e termina numa pose verde em 3/4, nítida em 1080p (câmera em movimento) | reservado — candidato a entrada da ativação no modo personagem |
 | 164 | Rosto de frente sorrindo (0–1,5 s), olhos estreitando (~1,6 s), sorriso largo com múltiplos olhos e dissolve na forma humana (≥2,5 s); câmera em push-in contínuo | reservado — candidato ao estado "falando" (só o trecho até ~1,5 s) |
-| 274, 275, 277 | Colagem glitch (olhos por todo lado, cores invertidas) | fora do MVP (efeito glitch) |
+| 274, 275, 277 | Colagem glitch (olhos por todo lado, cores invertidas) | **transições em tela cheia** — enviados também como `transition3/2/1.mp4`; recodificados em `src/assets/capri/transitions/` (1280×720, H.264 CRF 20, sem áudio) |
 
 Fora do uso: o trecho de 17,4 s a 19,7 s (efeito de múltiplos olhos) e a reabertura semicerrada (19,7 s a 21 s).
 Também fora: o Shorts `5QPRS4oocgg` (edição de fã com efeitos), descartado a pedido do usuário.

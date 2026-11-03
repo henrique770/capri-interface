@@ -56,7 +56,8 @@ export const POSES: Record<PoseId, Pose> = {
   },
   /**
    * Estado ligado — S02E04 (255): os olhos sobem para dentro do quadro com um
-   * pequeno quique, nos tempos originais, e seguram o último desenho (o still).
+   * pequeno quique e seguram o último desenho (o still). Tempos originais, exceto
+   * a espera inicial (1 s → 0,6 s), encurtada para seguir logo após a transição.
    * Na lateral, depois da entrada, corta para o loop `eyes`.
    */
   eyesPop: {
@@ -65,6 +66,6 @@ export const POSES: Record<PoseId, Pose> = {
     width: 1280,
     height: 720,
     eyes: { left: { x: 0.19, y: 0.625 }, right: { x: 0.76, y: 0.625 } },
-    idle: { sequence: EYES_POP_SEQUENCE, mode: 'once', durations: [1001, 125, 125, 1100] },
+    idle: { sequence: EYES_POP_SEQUENCE, mode: 'once', durations: [600, 125, 125, 1100] },
   },
 }

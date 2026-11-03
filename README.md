@@ -30,10 +30,12 @@ Outros: `npm run build` (gera `out/`), `npm start` (roda o build), `npm run type
 - **Câmera alinhada aos olhos** (`camera.ts`): toda pose é enquadrada em unidades de
   "distância entre os olhos", com escala uniforme (sem distorção). Assim, frames de tomadas
   diferentes trocam com o olhar praticamente no mesmo lugar.
-- **Ativação** (`useActivationTransition.ts`): antecipação curta → cortina diagonal no
-  ângulo das mechas (de baixo-esquerda para cima-direita) com uma faixa verde neon na frente
-  → o frame ativo assenta de 1.06 para 1. A desativação faz o caminho inverso, com faixa
-  branca. Pode ser interrompida no meio (`Espaço` duas vezes) e reverte de onde está.
+- **Transição em tela cheia** (`src/features/transitions/`, `TransitionOverlay.tsx`): ligar ou
+  desligar toca um clipe do S02E04 (277 → 275 → 274, em rodízio) cobrindo a janela inteira.
+  Um shader WebGL faz o glitch: o vídeo entra em blocos sobre a interface, com rasgos
+  horizontais e separação RGB; com a tela coberta, o estado troca por baixo (e o quadro muda
+  de forma); na saída, o vídeo se desfaz em blocos e revela o novo estado. Teto de 1,7 s.
+  Ajustes de tempo em `timeline.ts`.
 - **Modo conteúdo** (`layout.ts`): a Capri recolhe para um recorte encostado na borda
   direita da janela mostrando só os olhos — nunca no centro, nunca sob os cards.
 - **Close dos olhos animado** (pose `eyes`): no recorte lateral com a Capri ativa, toca os 29
