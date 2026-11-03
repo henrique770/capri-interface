@@ -44,7 +44,7 @@ export function HomelabPanel({ rightInset }: { rightInset: number }) {
         />
       </motion.div>
 
-      <motion.section variants={item} className="mt-3 rounded-[24px] bg-white p-6">
+      <motion.section variants={item} className="mt-3 rounded-[24px] bg-surface p-6">
         <div className="flex items-center justify-between text-[12px] text-mute">
           <span>Serviços</span>
           <span className="tabular-nums">

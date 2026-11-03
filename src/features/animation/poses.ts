@@ -45,7 +45,7 @@ export const POSES: Record<PoseId, Pose> = {
     eyes: { left: { x: 0.27, y: 0.455 }, right: { x: 0.65, y: 0.526 } },
     idle: { sequence: 'inactive-idle', mode: 'interval' },
   },
-  /** Close dos olhos (painel verde) — loop do recorte lateral com a Capri ativa. */
+  /** Close dos olhos (painel verde) — loop da Capri ativa, depois da entrada (255). */
   eyes: {
     id: 'eyes',
     src: getSequence(EYES_SEQUENCE)[0],
@@ -58,7 +58,7 @@ export const POSES: Record<PoseId, Pose> = {
    * Estado ligado — S02E04 (255): os olhos sobem para dentro do quadro com um
    * pequeno quique e seguram o último desenho (o still). Tempos originais, exceto
    * a espera inicial (1 s → 0,6 s), encurtada para seguir logo após a transição.
-   * Na lateral, depois da entrada, corta para o loop `eyes`.
+   * Depois da entrada, corta para o loop `eyes`.
    */
   eyesPop: {
     id: 'eyesPop',

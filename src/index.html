@@ -8,6 +8,14 @@
       content="default-src 'self'; script-src 'self' 'unsafe-inline'; connect-src 'self' ws: http://localhost:*; img-src 'self' data: blob:; media-src 'self' blob:; style-src 'self' 'unsafe-inline'; font-src 'self' data:"
     />
     <title>Capri</title>
+    <!-- Tema antes da primeira pintura: evita o clarão branco no modo escuro. -->
+    <script>
+      try {
+        var t = localStorage.getItem('capri.theme')
+        if (t !== 'light' && t !== 'dark') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        document.documentElement.dataset.theme = t
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

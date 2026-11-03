@@ -13,7 +13,7 @@ const TONE = { green: 'bg-capri-green', blue: 'bg-capri-blue' }
 
 export function Meter({ label, value, unit, detail, ratio, tone }: MeterProps) {
   return (
-    <div className="flex flex-col gap-5 rounded-[24px] bg-white p-6">
+    <div className="flex flex-col gap-5 rounded-[24px] bg-surface p-6">
       <div className="flex items-center justify-between text-[12px] text-mute">
         <span>{label}</span>
         {detail && <span className="tabular-nums">{detail}</span>}

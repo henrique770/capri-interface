@@ -15,19 +15,28 @@ const clamp = (v: number, min: number, max: number) => Math.min(Math.max(v, min)
 export const gutter = (vp: Size) => clamp(vp.width * 0.035, 16, 44)
 export const isNarrow = (vp: Size) => vp.width < 860
 
-/** Largura do recorte lateral com os olhos (modo conteúdo). */
-export const dockWidth = (vp: Size) => clamp(vp.width * 0.22, 180, 340)
+/**
+ * Largura do recorte lateral com os olhos (modo conteúdo).
+ * Até 1800px (telas de MacBook) mantém o tamanho original; em monitores
+ * maiores (ex.: 2560px, 1440p) cresce para não ficar perdido no canto.
+ */
+const DOCK_WIDE_FROM = 1800
+export const dockWidth = (vp: Size) => {
+  const base = clamp(vp.width * 0.22, 180, 340)
+  if (vp.width <= DOCK_WIDE_FROM) return base
+  return Math.min(base + (vp.width - DOCK_WIDE_FROM) * 0.45, 760)
+}
 
 export function stageLayout(view: View, vp: Size, on: boolean): StageLayout {
   const pad = gutter(vp)
 
   if (view === 'homelab') {
-    // A Capri recolhe para a borda direita: só os olhos, encostados na lateral.
+    // A Capri recolhe para a direita: só os olhos, num cartão com a mesma margem do conteúdo.
     const w = dockWidth(vp)
     const h = Math.round(w * 0.5625)
     return {
-      frame: { x: vp.width - w, y: HEADER_HEIGHT + (vp.height - HEADER_HEIGHT) * 0.08, w, h },
-      radius: [22, 0, 0, 22],
+      frame: { x: vp.width - w - pad, y: HEADER_HEIGHT + (vp.height - HEADER_HEIGHT) * 0.08, w, h },
+      radius: [22, 22, 22, 22],
       framing: 'eyes',
     }
   }

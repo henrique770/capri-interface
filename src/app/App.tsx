@@ -7,6 +7,7 @@ import { TopBar } from '@/components/ui/TopBar'
 import { keyboardSource } from '@/features/activation/sources/keyboard'
 import { dispatch, useCapri } from '@/features/activation/store'
 import { dockWidth, gutter, isNarrow } from '@/features/animation/layout'
+import { useThemeShortcut } from '@/features/theme/useThemeShortcut'
 import { useIntentSources } from '@/hooks/useIntentSources'
 import { useViewportSize } from '@/hooks/useViewportSize'
 
@@ -15,6 +16,7 @@ const SOURCES = [keyboardSource]
 
 export function App() {
   useIntentSources(SOURCES)
+  useThemeShortcut()
   const vp = useViewportSize()
   const phase = useCapri((s) => s.phase)
   const view = useCapri((s) => s.view)
@@ -39,7 +41,7 @@ export function App() {
             onToggle={() => dispatch({ type: 'toggle' })}
           />
         )}
-        {view === 'homelab' && <HomelabPanel key="homelab" rightInset={dockWidth(vp) + gutter(vp)} />}
+        {view === 'homelab' && <HomelabPanel key="homelab" rightInset={dockWidth(vp) + gutter(vp) * 2} />}
       </AnimatePresence>
 
       <CapriStage />

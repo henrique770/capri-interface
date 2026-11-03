@@ -1,8 +1,11 @@
-import { app, BrowserWindow, shell } from 'electron'
+import { app, BrowserWindow, ipcMain, nativeTheme, shell } from 'electron'
 import { join } from 'node:path'
 
 const isMac = process.platform === 'darwin'
-const BACKGROUND = '#FAFAF8'
+const BACKGROUND = { light: '#FAFAF8', dark: '#0C0C0E' }
+const THEME_MODES = new Set(['system', 'light', 'dark'])
+
+const background = () => (nativeTheme.shouldUseDarkColors ? BACKGROUND.dark : BACKGROUND.light)
 
 function createWindow(): void {
   const win = new BrowserWindow({
@@ -12,7 +15,7 @@ function createWindow(): void {
     minHeight: 440,
     show: false,
     title: 'Capri',
-    backgroundColor: BACKGROUND,
+    backgroundColor: background(),
     // macOS: barra de título integrada (semáforo flutuando sobre o conteúdo).
     // Windows/Linux: moldura nativa padrão para manter o comportamento esperado.
     titleBarStyle: isMac ? 'hiddenInset' : 'default',
@@ -40,6 +43,16 @@ function createWindow(): void {
     void win.loadFile(join(__dirname, '../renderer/index.html'))
   }
 }
+
+// O renderer guarda a preferência; aqui só alinhamos a moldura nativa e o fundo da janela.
+ipcMain.on('capri:set-theme', (_event, mode: unknown) => {
+  if (typeof mode !== 'string' || !THEME_MODES.has(mode)) return
+  nativeTheme.themeSource = mode as 'system' | 'light' | 'dark'
+})
+
+nativeTheme.on('updated', () => {
+  for (const win of BrowserWindow.getAllWindows()) win.setBackgroundColor(background())
+})
 
 app.whenReady().then(() => {
   createWindow()

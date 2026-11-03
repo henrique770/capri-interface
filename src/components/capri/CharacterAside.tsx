@@ -51,6 +51,9 @@ export function CharacterAside({ phase, narrow, onToggle }: CharacterAsideProps)
             <div className="flex items-center gap-1.5">
               <Kbd>T</Kbd> tópicos
             </div>
+            <div className="flex items-center gap-1.5">
+              <Kbd>D</Kbd> tema
+            </div>
           </dl>
         )}
       </div>

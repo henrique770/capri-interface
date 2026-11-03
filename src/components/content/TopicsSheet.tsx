@@ -19,7 +19,7 @@ export function TopicsSheet({ onClose }: { onClose: () => void }) {
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: 24, transition: { duration: 0.2 } }}
       transition={{ duration: 0.45, ease: EASE_OUT }}
-      className="absolute right-3 bottom-3 z-40 flex w-[min(340px,calc(100vw-24px))] flex-col rounded-[24px] bg-white p-6 shadow-[0_1px_0_rgba(17,17,20,0.04),0_24px_60px_-24px_rgba(17,17,20,0.18)]"
+      className="absolute right-3 bottom-3 z-40 flex w-[min(340px,calc(100vw-24px))] flex-col rounded-[24px] bg-surface p-6 shadow-sheet"
       style={{ top: HEADER_HEIGHT }}
     >
       <div className="flex items-start justify-between">

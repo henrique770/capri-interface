@@ -13,6 +13,11 @@
   --color-ink: #111114;
   --color-mute: #85858d;
   --color-line: #e7e7e3;
+  /* Cartões: um passo acima do papel. */
+  --color-surface: #ffffff;
+  /* Fundo do quadro da Capri (letterbox) — escuro nos dois temas. */
+  --color-void: #111114;
+  --shadow-sheet: 0 1px 0 rgba(17, 17, 20, 0.04), 0 24px 60px -24px rgba(17, 17, 20, 0.18);
 
   /* Acentos amostrados dos frames originais da Capri */
   --color-capri-pink: #ee2a5c;
@@ -23,6 +28,23 @@
   --font-mono: 'Geist Mono Variable', ui-monospace, monospace;
 
   --ease-capri: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/*
+ * Tema escuro: mesmos papéis, valores trocados. As utilities do Tailwind leem
+ * as variáveis em tempo de execução, então basta sobrescrevê-las aqui.
+ * `data-theme` é definido no <html> antes da primeira pintura (index.html).
+ */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --color-paper: #0c0c0e;
+  --color-paper-2: #1a1a1d;
+  --color-ink: #f2f2ef;
+  --color-mute: #85858d;
+  --color-line: #232327;
+  --color-surface: #141417;
+  --color-void: #050506;
+  --shadow-sheet: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 24px 60px -24px rgba(0, 0, 0, 0.7);
 }
 
 @layer base {
@@ -36,6 +58,9 @@
     margin: 0;
     background: var(--color-paper);
     color: var(--color-ink);
+    transition:
+      background-color 0.4s var(--ease-capri),
+      color 0.4s var(--ease-capri);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     overflow: hidden;
@@ -63,24 +88,30 @@
   -webkit-app-region: no-drag;
 }
 
-/* Respiração quase imperceptível aplicada à imagem, nunca ao recorte. */
+/*
+ * Respiração quase imperceptível aplicada à imagem, nunca ao recorte.
+ * Sempre com um leve excesso (scale ≥ 1.008, a partir do centro) maior que o
+ * deslocamento vertical: as bordas da imagem nunca entram no quadro, então
+ * nada da camada de baixo aparece pelas laterais.
+ */
 @keyframes capri-breathe {
   0%,
   100% {
-    transform: translate3d(0, 0, 0) scale(1);
+    transform: translate3d(0, 0, 0) scale(1.008);
   }
   50% {
-    transform: translate3d(0, -0.35%, 0) scale(1.006);
+    transform: translate3d(0, -0.35%, 0) scale(1.016);
   }
 }
 
 .capri-breathe {
   animation: capri-breathe 5.6s var(--ease-capri) infinite;
-  transform-origin: 50% 60%;
+  transform-origin: 50% 50%;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .capri-breathe {
     animation: none;
+    transform: scale(1.008);
   }
 }

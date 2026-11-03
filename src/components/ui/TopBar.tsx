@@ -3,6 +3,7 @@ import type { ActivationPhase, View } from '@/features/activation/model'
 import { HEADER_HEIGHT } from '@/features/animation/layout'
 import { IconButton } from './IconButton'
 import { StatusIndicator } from './StatusIndicator'
+import { ThemeToggle } from './ThemeToggle'
 
 interface TopBarProps {
   phase: ActivationPhase
@@ -31,6 +32,7 @@ export function TopBar({ phase, view, topicsOpen, onHomelab, onTopics }: TopBarP
         <IconButton label="Histórico de tópicos (T)" active={topicsOpen} onClick={onTopics}>
           <History size={16} strokeWidth={1.75} />
         </IconButton>
+        <ThemeToggle />
       </nav>
     </header>
   )

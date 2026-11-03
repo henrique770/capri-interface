@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { motion, type Transition } from 'motion/react'
+import { motion, useTransform, type Transition } from 'motion/react'
 import { isOn } from '@/features/activation/model'
 import { useCapri } from '@/features/activation/store'
 import { stageLayout } from '@/features/animation/layout'
@@ -16,7 +16,7 @@ const INSTANT: Transition = { duration: 0 }
  * A Capri: frames originais empilhados dentro de um quadro arredondado.
  * - desligada: still com a região branca (quadro retrato);
  * - ligada: S02E04 (255) — os olhos sobem para dentro do quadro (quadro 16:9);
- * - na lateral: após a entrada, corta para o loop do close dos olhos (65).
+ * - após a entrada: corta para o loop do close dos olhos (65), no quadro grande e na lateral.
  * A troca acontece por baixo de um clipe de transição em tela cheia com glitch.
  */
 export function CapriStage() {
@@ -43,19 +43,22 @@ export function CapriStage() {
   const cut: Transition =
     transition === INSTANT ? INSTANT : { duration: 0.14, ease: 'linear', delay: docked ? 0.6 : 0.04 }
 
-  // A entrada (255) toca uma vez por ativação; depois segura o último desenho.
+  // A entrada (255) toca uma vez por ativação; depois corta para o loop dos olhos (65),
+  // tanto na tela inicial quanto na lateral — a Capri ligada nunca fica estática.
   const [entered, setEntered] = useState(false)
   useEffect(() => {
     if (!on) setEntered(false)
   }, [on])
-  const showLoop = docked && entered
+  const showLoop = entered
+  // O still desligado sai de cena quando a camada ligada cobre o quadro — nada vaza pelas bordas.
+  const inactiveOpacity = useTransform(motionState.reveal, (v) => 1 - v)
 
   return (
     <>
       <motion.div
         aria-label={on ? 'Capri ativada' : 'Capri desativada'}
         role="img"
-        className="absolute overflow-hidden bg-ink"
+        className="absolute overflow-hidden bg-void"
         initial={false}
         animate={{
           left: frame.x,
@@ -69,14 +72,16 @@ export function CapriStage() {
         }}
         transition={transition}
       >
-        <PoseLayer
-          pose={POSES.inactive}
-          frame={frame}
-          framing={framing}
-          transition={transition}
-          accent={motionState.inactiveAccent}
-          live={phase === 'inactive'}
-        />
+        <motion.div className="absolute inset-0" style={{ opacity: inactiveOpacity }}>
+          <PoseLayer
+            pose={POSES.inactive}
+            frame={frame}
+            framing={framing}
+            transition={transition}
+            accent={motionState.inactiveAccent}
+            live={phase === 'inactive'}
+          />
+        </motion.div>
         {/* Camada "ligada": trocada enquanto o clipe de transição cobre a janela. */}
         <motion.div className="absolute inset-0" style={{ opacity: motionState.reveal }}>
           <PoseLayer

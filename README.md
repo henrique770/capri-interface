@@ -22,6 +22,12 @@ Outros: `npm run build` (gera `out/`), `npm start` (roda o build), `npm run type
 | `H` | abrir / fechar o painel Homelab |
 | `T` | histórico de tópicos |
 | `Esc` | voltar à visualização principal |
+| `D` | tema: sistema → claro → escuro |
+
+O tema segue o sistema por padrão; a escolha manual fica salva no `localStorage`
+(`capri.theme`). Os tokens de cor ficam em `src/styles/global.css` — o escuro só
+sobrescreve as variáveis em `:root[data-theme='dark']`. A moldura nativa da janela
+acompanha via `nativeTheme` (ponte `window.capri.setTheme`).
 
 ## Como a animação funciona
 
@@ -38,13 +44,13 @@ Outros: `npm run build` (gera `out/`), `npm start` (roda o build), `npm run type
   Ajustes de tempo em `timeline.ts`.
 - **Modo conteúdo** (`layout.ts`): a Capri recolhe para um recorte encostado na borda
   direita da janela mostrando só os olhos — nunca no centro, nunca sob os cards.
-- **Close dos olhos animado** (pose `eyes`): no recorte lateral com a Capri ativa, toca os 29
+- **Close dos olhos animado** (pose `eyes`): com a Capri ativa (quadro grande e lateral), toca os 29
   desenhos originais do S02E04 (0–17,4 s) em vai-e-volta, com a duração exata de cada desenho.
   Ela olha, estreita os olhos e, na virada, **fecha e reabre** — sem cortes inventados. A troca
   entre retrato e close é um corte curto, como uma mudança de plano.
 - **Estado ligado** (pose `eyesPop`, S02E04 · 255): ao ativar, o quadro passa de retrato para
   16:9 enquanto a cortina revela o clipe; os olhos sobem para dentro do quadro com o quique
-  original e seguram o último desenho. Na lateral, depois dessa entrada, corta para o loop (65).
+  original. Depois dessa entrada, corta para o loop (65) — no quadro grande e na lateral.
 - **Respiração**: oscilação mínima (0,6 %) na imagem, não no recorte.
 - **Sequências de frames** (`sequences.ts`, `useFrameSequence.ts`): solte PNGs em
   `src/assets/capri/sequences/<nome>/` e a pose correspondente passa a tocá-los
