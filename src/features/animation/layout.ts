@@ -56,6 +56,26 @@ export function stageLayout(view: View, vp: Size, on: boolean): StageLayout {
     }
   }
 
+  // Ligada: o clipe 16:9 inteiro + a faixa da boca. Desligada: retrato, no formato
+  // do still.
+  const aspect = on ? ON_ASPECT : isNarrow(vp) ? 1.1 : 1.18
+
+  // Janela em pé (vertical): sobra altura, então a Capri ocupa a largura toda e
+  // fica centrada no espaço entre a barra superior e o texto, que desce para baixo dela.
+  if (vp.height > vp.width) {
+    const reserve = isNarrow(vp) ? 250 : 300
+    const availH = vp.height - HEADER_HEIGHT - reserve
+    const w = Math.min(vp.width - pad * 2, availH * aspect)
+    const h = Math.max(200, w / aspect)
+    const imageH = on ? w / IMAGE_ASPECT : h
+    return {
+      frame: { x: (vp.width - w) / 2, y: HEADER_HEIGHT + Math.max(0, (availH - h) / 2), w, h },
+      radius: [28, 28, 28, 28],
+      framing: 'portrait',
+      imageH,
+    }
+  }
+
   const maxH = isNarrow(vp) ? vp.height - HEADER_HEIGHT - 250 : vp.height - HEADER_HEIGHT - pad
   // Nunca invade a coluna de texto à direita (CharacterAside: min(34vw, 380px) + 44px).
   const asideW = Math.min(vp.width * 0.34, 380) + 44
@@ -63,11 +83,10 @@ export function stageLayout(view: View, vp: Size, on: boolean): StageLayout {
     ? vp.width - pad * 2
     : Math.min(vp.width * (on ? 0.66 : 0.62), vp.width - pad - asideW - 24)
 
-  // Ligada: o clipe 16:9 inteiro + a faixa da boca. Desligada: retrato, no formato
-  // do still. Composição assimétrica, ancorada no topo.
-  const aspect = on ? ON_ASPECT : isNarrow(vp) ? 1.1 : 1.18
+  // Composição assimétrica: à esquerda, centrada na altura quando sobra espaço.
   const w = Math.min(maxW, maxH * aspect)
   const h = Math.max(200, w / aspect)
   const imageH = on ? w / IMAGE_ASPECT : h
-  return { frame: { x: pad, y: HEADER_HEIGHT, w, h }, radius: [28, 28, 28, 28], framing: 'portrait', imageH }
+  const y = HEADER_HEIGHT + Math.max(0, (maxH - h) / 2)
+  return { frame: { x: pad, y, w, h }, radius: [28, 28, 28, 28], framing: 'portrait', imageH }
 }
